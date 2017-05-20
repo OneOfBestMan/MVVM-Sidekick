@@ -27,7 +27,10 @@ using System.ComponentModel;
 using System.Collections.Concurrent;
 using Windows.System.Threading;
 using System.Reactive.Disposables;
-
+#elif NETSTANDARD
+using System.Collections.Concurrent;
+using System.Reactive.Disposables;
+using System.Threading;
 #elif WPF
 using System.Windows;
 using System.Windows.Controls;
@@ -67,54 +70,7 @@ namespace MVVMSidekick
 	namespace Utilities
 	{
 
-		/// <summary>
-		/// Class Runtime.
-		/// </summary>
-		public static class Runtime
-		{
-
-			/// <summary>
-			/// The _ is in design mode
-			/// </summary>
-			static bool? _IsInDesignMode;
-
-
-			/// <summary>
-			/// <para>Gets if the code is running in design time. </para>
-			/// <para>读取目前是否在设计时状态。</para>
-			/// </summary>
-			/// <value><c>true</c> if this instance is in design mode; otherwise, <c>false</c>.</value>
-			public static bool IsInDesignMode
-			{
-				get
-				{
-
-					return (
-						_IsInDesignMode
-						??
-						(
-
-							_IsInDesignMode =
-#if SILVERLIGHT_5||WINDOWS_PHONE_8||WINDOWS_PHONE_7
- DesignerProperties.IsInDesignTool
-#elif NETFX_CORE
- Windows.ApplicationModel.DesignMode.DesignModeEnabled
-#else
- (bool)System.ComponentModel.DependencyPropertyDescriptor
-                                .FromProperty(
-                                    DesignerProperties.IsInDesignModeProperty,
-                                    typeof(System.Windows.FrameworkElement))
-                                .Metadata
-                                .DefaultValue
-#endif
-))
-						.Value;
-				}
-
-			}
-
-		}
-
+	
 
 
 
@@ -186,7 +142,7 @@ namespace MVVMSidekick
 		/// </summary>
 		public static class TypeInfoHelper
 		{
-#if NETFX_CORE
+#if NETFX_CORE||NETSTANDARD
 			/// <summary>
 			/// Gets the type or type information.
 			/// </summary>
@@ -194,7 +150,7 @@ namespace MVVMSidekick
 			/// <returns>TypeInfo.</returns>
 			public static TypeInfo GetTypeOrTypeInfo(this Type type)
 			{
-				return type.GetTypeInfo();
+                return type.GetTypeInfo();
 
 			}
 #else
@@ -249,8 +205,8 @@ namespace MVVMSidekick
 			/// <returns>Dictionary&lt;System.String, MethodInfo&gt;.</returns>
 			public static Dictionary<string, MethodInfo> GetMethodsFromCache(this Type type)
 			{
-#if NETFX_CORE
-				return ReflectInfoCache<MethodInfo>.GetCache(type, x => x.GetRuntimeMethods().ToArray());
+#if NETFX_CORE || NETSTANDARD
+                return ReflectInfoCache<MethodInfo>.GetCache(type, x => x.GetRuntimeMethods().ToArray());
 #else
 				return ReflectInfoCache<MethodInfo>.GetCache(type, x => x.GetMethods());
 #endif
@@ -263,8 +219,8 @@ namespace MVVMSidekick
 			/// <returns>Dictionary&lt;System.String, EventInfo&gt;.</returns>
 			public static Dictionary<string, EventInfo> GetEventsFromCache(this Type type)
 			{
-#if NETFX_CORE
-				return ReflectInfoCache<EventInfo>.GetCache(type, x => x.GetRuntimeEvents().ToArray());
+#if NETFX_CORE || NETSTANDARD
+                return ReflectInfoCache<EventInfo>.GetCache(type, x => x.GetRuntimeEvents().ToArray());
 #else
 				return ReflectInfoCache<EventInfo>.GetCache(type, x => x.GetEvents());
 #endif
@@ -629,174 +585,6 @@ namespace MVVMSidekick
 		}
 #endif
 
-		/// <summary>
-		/// Provides a task scheduler that ensures a maximum concurrency level while
-		/// running on top of the ThreadPool.
-		/// </summary>
-		public class LimitedConcurrencyLevelTaskScheduler : TaskScheduler
-		{
-			/// <summary>
-			/// Whether the current thread is processing work items.
-			/// </summary>
-			[ThreadStatic]
-			private static bool _currentThreadIsProcessingItems;
-			/// <summary>
-			/// The list of tasks to be executed.
-			/// </summary>
-			private readonly LinkedList<Task> _tasks = new LinkedList<Task>(); // protected by lock(_tasks) 
-			/// <summary>
-			/// The maximum concurrency level allowed by this scheduler.
-			/// </summary>
-			private readonly int _maxDegreeOfParallelism;
-			/// <summary>
-			/// Whether the scheduler is currently processing work items.
-			/// </summary>
-			private int _delegatesQueuedOrRunning = 0; // protected by lock(_tasks) 
-
-			/// <summary>
-			/// Initializes an instance of the LimitedConcurrencyLevelTaskScheduler class with the
-			/// specified degree of parallelism.
-			/// </summary>
-			/// <param name="maxDegreeOfParallelism">The maximum degree of parallelism provided by this scheduler.</param>
-			/// <exception cref="System.ArgumentOutOfRangeException">maxDegreeOfParallelism</exception>
-			public LimitedConcurrencyLevelTaskScheduler(int maxDegreeOfParallelism)
-			{
-				if (maxDegreeOfParallelism < 1) throw new ArgumentOutOfRangeException("maxDegreeOfParallelism");
-				_maxDegreeOfParallelism = maxDegreeOfParallelism;
-			}
-
-			/// <summary>
-			/// Queues a task to the scheduler.
-			/// </summary>
-			/// <param name="task">The task to be queued.</param>
-			[SecurityCritical]
-			protected sealed override void QueueTask(Task task)
-			{
-				// Add the task to the list of tasks to be processed.  If there aren't enough 
-				// delegates currently queued or running to process tasks, schedule another. 
-				lock (_tasks)
-				{
-					_tasks.AddLast(task);
-					if (_delegatesQueuedOrRunning < _maxDegreeOfParallelism)
-					{
-						++_delegatesQueuedOrRunning;
-						NotifyThreadPoolOfPendingWork();
-					}
-				}
-			}
-
-			/// <summary>
-			/// Informs the ThreadPool that there's work to be executed for this scheduler.
-			/// </summary>
-			private async void NotifyThreadPoolOfPendingWork()
-			{
-
-#if NETFX_CORE
-				await ThreadPool.RunAsync((_1) =>
-#else
-				await TaskExHelper.Yield();
-				ThreadPool.QueueUserWorkItem(_ =>
-#endif
-
-
-					{
-						// Note that the current thread is now processing work items. 
-						// This is necessary to enable inlining of tasks into this thread.
-						_currentThreadIsProcessingItems = true;
-						try
-						{
-							// Process all available items in the queue. 
-							while (true)
-							{
-								Task item;
-								lock (_tasks)
-								{
-									// When there are no more items to be processed, 
-									// note that we're done processing, and get out. 
-									if (_tasks.Count == 0)
-									{
-										--_delegatesQueuedOrRunning;
-										break;
-									}
-
-									// Get the next item from the queue
-									item = _tasks.First.Value;
-									_tasks.RemoveFirst();
-								}
-
-								// Execute the task we pulled out of the queue 
-								base.TryExecuteTask(item);
-							}
-						}
-						// We're done processing items on the current thread 
-						finally { _currentThreadIsProcessingItems = false; }
-
-#if NETFX_CORE
-					});
-#else
-
-					}, null);
-#endif
-
-			}
-
-			/// <summary>
-			/// Attempts to execute the specified task on the current thread.
-			/// </summary>
-			/// <param name="task">The task to be executed.</param>
-			/// <param name="taskWasPreviouslyQueued">if set to <c>true</c> [task was previously queued].</param>
-			/// <returns>Whether the task could be executed on the current thread.</returns>
-			[SecurityCritical]
-			protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-			{
-				// If this thread isn't already processing a task, we don't support inlining 
-				if (!_currentThreadIsProcessingItems) return false;
-
-				// If the task was previously queued, remove it from the queue 
-				if (taskWasPreviouslyQueued) TryDequeue(task);
-
-				// Try to run the task. 
-				return base.TryExecuteTask(task);
-			}
-
-			/// <summary>
-			/// Attempts to remove a previously scheduled task from the scheduler.
-			/// </summary>
-			/// <param name="task">The task to be removed.</param>
-			/// <returns>Whether the task could be found and removed.</returns>
-			[SecurityCritical]
-			protected sealed override bool TryDequeue(Task task)
-			{
-				lock (_tasks) return _tasks.Remove(task);
-			}
-
-			/// <summary>
-			/// Gets the maximum concurrency level supported by this scheduler.
-			/// </summary>
-			/// <value>The maximum concurrency level.</value>
-			public sealed override int MaximumConcurrencyLevel { get { return _maxDegreeOfParallelism; } }
-
-			/// <summary>
-			/// Gets an enumerable of the tasks currently scheduled on this scheduler.
-			/// </summary>
-			/// <returns>An enumerable of the tasks currently scheduled.</returns>
-			/// <exception cref="System.NotSupportedException"></exception>
-			[SecurityCritical]
-			protected sealed override IEnumerable<Task> GetScheduledTasks()
-			{
-				bool lockTaken = false;
-				try
-				{
-					Monitor.TryEnter(_tasks, ref lockTaken);
-					if (lockTaken) return _tasks.ToArray();
-					else throw new NotSupportedException();
-				}
-				finally
-				{
-					if (lockTaken) Monitor.Exit(_tasks);
-				}
-			}
-		}
 
 	}
 

@@ -50,6 +50,9 @@ namespace MVVMSidekick.Views
     {
 
 
+        object IStage.Frame => Frame;
+
+        object IStage.Target => Target;
 
 
         public string BeaconKey

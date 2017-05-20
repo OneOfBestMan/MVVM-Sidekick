@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MVVMSidekick.ViewModels;
-using System.Reactive.Linq;
 using System.Windows;
-using System.IO;
-using MVVMSidekick.Services;
 
 
 
@@ -53,7 +46,7 @@ namespace MVVMSidekick.Views
         IView CurrentBindingView { get; }
         IStage DefaultStage { get; set; }
 
-        void InitParent(Func<DependencyObject> parentLocator);
+        void InitParent(Func<Object> parentLocator);
     }
 
 

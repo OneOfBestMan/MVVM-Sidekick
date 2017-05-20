@@ -203,11 +203,15 @@ namespace MVVMSidekick.Views
 			private set { SetValue(BeaconKeyProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for BeaconKey.  This enables animation, styling, binding, etc...			
-		/// <summary>
-		/// The beacon key property
-		/// </summary>
-		public static readonly DependencyProperty BeaconKeyProperty =
+        object IStage.Frame => Frame;
+
+        object IStage.Target => Target;
+
+        // Using a DependencyProperty as the backing store for BeaconKey.  This enables animation, styling, binding, etc...			
+        /// <summary>
+        /// The beacon key property
+        /// </summary>
+        public static readonly DependencyProperty BeaconKeyProperty =
 			DependencyProperty.Register("BeaconKey", typeof(string), typeof(Stage), new PropertyMetadata(""));
 
 

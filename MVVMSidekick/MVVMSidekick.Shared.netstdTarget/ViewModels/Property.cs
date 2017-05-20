@@ -5,7 +5,6 @@ using System.Text;
 namespace MVVMSidekick.ViewModels
 {
 
-
     /// <summary>
     /// <para>A slot to place the value container field and value container locator.</para>
     /// <para>属性定义。一个属性定义包括一个创建/定位属性“值容器”的静态方法引用，和一个缓存该方法执行结果“值容器”的槽位</para>
@@ -58,5 +57,6 @@ namespace MVVMSidekick.ViewModels
 
 
     }
+
 
 }

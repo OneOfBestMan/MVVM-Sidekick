@@ -22,7 +22,7 @@ using MVVMSidekick.Utilities;
 using MVVMSidekick.Common;
 using System.Runtime.CompilerServices;
 
-#if NETFX_CORE
+#if NETFX_CORE ||NETSTANDARD
 using System.Collections.Concurrent;
 
 #elif WPF
@@ -235,7 +235,7 @@ namespace MVVMSidekick
 						//argsType
 					};
 
-#if NETFX_CORE
+#if NETFX_CORE||NETSTANDARD
 
 					for (; ; )
 					{
@@ -294,8 +294,8 @@ namespace MVVMSidekick
 							.ToList();
 
 
-#if NETFX_CORE
-						ImplementedInterfaceTypeInstances = typeof(TEventData)
+#if NETFX_CORE || NETSTANDARD
+                        ImplementedInterfaceTypeInstances = typeof(TEventData)
 							.GetTypeOrTypeInfo()
 							.ImplementedInterfaces
 							.Where (x=>x.Name[0]=='I')
@@ -304,7 +304,7 @@ namespace MVVMSidekick
 							.Where(x => x != null)
 							.ToList();
 #else
-						ImplementedInterfaceTypeInstances = typeof(TEventData)
+						ImplementedInterfaceTypeInstances = typeof(TEventData).GetTypeOrTypeInfo()
 							.GetInterfaces()
 							.Select(x =>
 									router.GetEventChannel(x))
@@ -545,7 +545,7 @@ namespace MVVMSidekick
 			/// <param name="source">事件来源</param>
 			/// <param name="eventArgs">事件数据</param>
 			/// <param name="callerMemberName">事件名</param>
-			public static void RaiseEvent<TEventArgs>(this BindableBase source, TEventArgs eventArgs, string callerMemberName = "")
+			public static void RaiseEvent<TEventArgs>(this IBindable source, TEventArgs eventArgs, string callerMemberName = "")
 #if !NETFX_CORE
 			// where TEventArgs : EventArgs
 #endif

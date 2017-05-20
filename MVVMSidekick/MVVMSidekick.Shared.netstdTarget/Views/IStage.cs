@@ -6,7 +6,6 @@ using MVVMSidekick.ViewModels;
 using System.Reactive.Linq;
 using System.Windows;
 using System.IO;
-using MVVMSidekick.Services;
 
 
 
@@ -52,10 +51,10 @@ namespace MVVMSidekick.Views
         string BeaconKey { get; }
         bool CanGoBack { get; }
         bool CanGoForward { get; }
-        Frame Frame { get; }
+        Object Frame { get; } //TODO:Type could Be Frame  in Xaml std 1.0
         bool IsGoBackSupported { get; }
         bool IsGoForwardSupported { get; }
-        FrameworkElement Target { get; }
+        Object Target { get; }//TODO:Type could Be FrameworkElement  in Xaml std 1.0
 
         Task<TTarget> Show<TTarget>(TTarget targetViewModel = null, string viewMappingKey = null) where TTarget : class, IViewModel;
 

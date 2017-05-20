@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>37628017-0510-4754-8fec-7a3ae8fa1ca9</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MVVMSidekick</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\EventCommandBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\EventCommandEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\ICommandWithModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\CallingCodeContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DisposeEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DisposeEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\IDisposeGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Eventrouting\EventRouting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\IReactiveCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\Reactive.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\Runtime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\Utilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\BindableBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\BindableBaseExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\CommandModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\CommandModelExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DisposeGroupBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\IBindable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\IErrorInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\INotifyChanges.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\IValueContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\IViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ValueContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ValueContainerIndexer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\IDispatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\IStage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\IStageManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\IView.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Commands\NewFolder\" />
+  </ItemGroup>
+</Project>

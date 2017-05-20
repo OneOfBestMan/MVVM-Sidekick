@@ -485,7 +485,7 @@ namespace MVVMSidekick.ViewModels
 
 #elif NET45
 
-				await Dispatcher.BeginInvoke(action).Task;
+				await Dispatcher.ExecuteInUIThread(action);
 #else
 			await TaskExHelper.Yield();
 			Dispatcher.BeginInvoke(action);
@@ -659,7 +659,7 @@ namespace MVVMSidekick.ViewModels
 		}
 
 #if NETFX_CORE
-			private Windows.UI.Core.CoreDispatcher GetCurrentViewDispatcher()
+			private IDispatcher GetCurrentViewDispatcher()
 			{
 				Windows.UI.Xaml.DependencyObject dp = null;
 				if (this.StageManager == null)
@@ -679,7 +679,7 @@ namespace MVVMSidekick.ViewModels
 		/// Gets the current view dispatcher.
 		/// </summary>
 		/// <returns>Dispatcher.</returns>
-		private Dispatcher GetCurrentViewDispatcher()
+		private IDispatcher GetCurrentViewDispatcher()
 		{
 			DependencyObject dp = null;
 			if (this.StageManager == null)
@@ -724,7 +724,7 @@ namespace MVVMSidekick.ViewModels
 			/// <summary>
 			/// Explode the dispatcher of current view.
 			/// </summary>
-			public Dispatcher Dispatcher
+			public IDispatcher Dispatcher
 			{
 				get
 				{

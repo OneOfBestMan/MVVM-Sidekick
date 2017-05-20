@@ -10,7 +10,6 @@ using System.Windows.Input;
 namespace MVVMSidekick.ViewModels
 {
 
-
     /// <summary>
     /// <para>Value Container, holds the value of certain field, with notifition /and compare support</para>
     /// <para>值容器</para>
@@ -264,8 +263,8 @@ namespace MVVMSidekick.ViewModels
 
 
 
-#if NETFX_CORE
-        bool _IsCopyToAllowed = !typeof(ICommand).GetTypeInfo().IsAssignableFrom(typeof(TProperty).GetTypeInfo());
+#if NETFX_CORE|| NETSTANDARD
+            bool _IsCopyToAllowed = !typeof(ICommand).GetTypeInfo().IsAssignableFrom(typeof(TProperty).GetTypeInfo());
 #else
         /// <summary>
         /// The _ is copy to allowed
@@ -296,126 +295,4 @@ namespace MVVMSidekick.ViewModels
         public event EventHandler ValueChangedWithNothing;
         public event PropertyChangedEventHandler PropertyChanged;
     }
-
-    /// <summary>
-    /// Interface IValueCanSet
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IValueCanSet<in T>
-    {
-        /// <summary>
-        /// Sets the value.
-        /// </summary>
-        /// <value>The value.</value>
-        T Value { set; }
-    }
-
-    /// <summary>
-    /// Interface IValueCanGet
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IValueCanGet<out T>
-    {
-        /// <summary>
-        /// Gets the value.
-        /// </summary>
-        /// <value>The value.</value>
-        T Value { get; }
-    }
-
-
-
-    /// <summary>
-    /// Interface INotifyChanges
-    /// </summary>
-    public interface INotifyChanges
-    {
-        /// <summary>
-        /// Occurs when [value changed with name only].
-        /// </summary>
-        event PropertyChangedEventHandler ValueChangedWithNameOnly;
-        /// <summary>
-        /// Occurs when [value changed with nothing].
-        /// </summary>
-        event EventHandler ValueChangedWithNothing;
-
-    }
-    /// <summary>
-    /// Interface INotifyChanges
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface INotifyChanges<T> : INotifyChanges
-    {
-        /// <summary>
-        /// Occurs when [value changed].
-        /// </summary>
-        event EventHandler<ValueChangedEventArgs<T>> ValueChanged;
-
-    }
-    /// <summary>
-    /// Interface IValueContainer
-    /// </summary>
-    public interface IValueContainer : IErrorInfo, INotifyChanges
-    {
-        string PropertyName { get; }
-
-        /// <summary>
-        /// Gets the type of the property.
-        /// </summary>
-        /// <value>The type of the property.</value>
-        Type PropertyType { get; }
-        /// <summary>
-        /// Gets or sets the value.
-        /// </summary>
-        /// <value>The value.</value>
-        Object Value { get; set; }
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is copy to allowed.
-        /// </summary>
-        /// <value><c>true</c> if this instance is copy to allowed; otherwise, <c>false</c>.</value>
-        bool IsCopyToAllowed { get; set; }
-
-        void AddErrorEntry(string message, Exception exception = null);
-
-    }
-
-    /// <summary>
-    /// Interface ICommandModel
-    /// </summary>
-    /// <typeparam name="TCommand">The type of the t command.</typeparam>
-    /// <typeparam name="TResource">The type of the t resource.</typeparam>
-    public interface ICommandModel<TCommand, TResource> : ICommand
-    {
-        /// <summary>
-        /// Gets the command core.
-        /// </summary>
-        /// <value>The command core.</value>
-        TCommand CommandCore { get; }
-        /// <summary>
-        /// Gets or sets a value indicating whether [last can execute value].
-        /// </summary>
-        /// <value><c>true</c> if [last can execute value]; otherwise, <c>false</c>.</value>
-        bool LastCanExecuteValue { get; set; }
-        /// <summary>
-        /// Gets or sets the resource.
-        /// </summary>
-        /// <value>The resource.</value>
-        TResource State { get; set; }
-    }
-
-
-    /// <summary>
-    /// Interface IErrorInfo
-    /// </summary>
-    public interface IErrorInfo
-    {
-        /// <summary>
-        /// Gets the errors.
-        /// </summary>
-        /// <value>The errors.</value>
-        ObservableCollection<ErrorEntity> Errors { get; }
-    }
-
-
-
 }

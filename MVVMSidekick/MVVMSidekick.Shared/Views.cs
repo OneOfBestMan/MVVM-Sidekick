@@ -394,10 +394,10 @@ namespace MVVMSidekick
 				get { return ViewType.Window; }
 			}
 
+            IViewModel IView.ViewModel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-
-
-		}
+            object IView.Parent => this.Parent;
+        }
 
 
 
@@ -417,12 +417,12 @@ namespace MVVMSidekick
 #endif
 		{
 
+            object IView.Parent => this.Parent;
 
-
-			/// <summary>
-			/// Initializes a new instance of the <see cref="MVVMPage" /> class.
-			/// </summary>
-			public MVVMPage()
+            /// <summary>
+            /// Initializes a new instance of the <see cref="MVVMPage" /> class.
+            /// </summary>
+            public MVVMPage()
 				//: this(null)
 			{
 #if WPF
@@ -453,14 +453,6 @@ namespace MVVMSidekick
 				DependencyProperty.Register("Frame", typeof(Frame), typeof(MVVMPage), new PropertyMetadata(null));
 
 
-			DependencyObject IView.Parent
-			{
-				get
-				{
-					return Frame;
-
-				}
-			}
 #endif
 
 //			/// <summary>
@@ -897,80 +889,11 @@ namespace MVVMSidekick
 				get { return ViewType.Control; }
 			}
 
-		}
-		/// <summary>
-		/// Enum ViewType
-		/// </summary>
-		public enum ViewType
-		{
-			/// <summary>
-			/// The page
-			/// </summary>
-			/// <summary>
-			/// The page
-			/// </summary>
-			Page,
-			/// <summary>
-			/// The window
-			/// </summary>
-			/// <summary>
-			/// The window
-			/// </summary>
-			Window,
-			/// <summary>
-			/// The control
-			/// </summary>
-			/// <summary>
-			/// The control
-			/// </summary>
-			Control
-		}
-
-		/// <summary>
-		/// Interface IView
-		/// </summary>
-		public interface IView
-		{
-			/// <summary>
-			/// Gets or sets the view model.
-			/// </summary>
-			/// <value>The view model.</value>
-			IViewModel ViewModel { get; set; }
-
-			/// <summary>
-			/// Gets the type of the view.
-			/// </summary>
-			/// <value>The type of the view.</value>
-			ViewType ViewType { get; }
-
-			/// <summary>
-			/// Gets or sets the content object.
-			/// </summary>
-			/// <value>The content object.</value>
-			Object ContentObject { get; set; }
-
-			/// <summary>
-			/// Gets the parent.
-			/// </summary>
-			/// <value>The parent.</value>
-			DependencyObject Parent { get; }
+            object IView.Parent =>Parent;
+        }
 
 
-		}
 
-
-		/// <summary>
-		/// Interface IView
-		/// </summary>
-		/// <typeparam name="TViewModel">The type of the t view model.</typeparam>
-		public interface IView<TViewModel> : IView, IDisposable where TViewModel : IViewModel
-		{
-			/// <summary>
-			/// Gets or sets the specific typed view model.
-			/// </summary>
-			/// <value>The specific typed view model.</value>
-			TViewModel SpecificTypedViewModel { get; set; }
-		}
 
 		/// <summary>
 		/// Struct ViewModelToViewMapper

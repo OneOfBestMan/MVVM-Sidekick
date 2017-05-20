@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MVVMSidekick.Common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
@@ -8,23 +9,66 @@ using System.Threading.Tasks;
 namespace MVVMSidekick.ViewModels
 {
     /// <summary>
+    /// Interface IViewModelLifetime
+    /// </summary>
+    public interface IViewModelLifetime : IDisposeGroup
+    {
+        /// <summary>
+        /// Called when [binded to view].
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <returns>Task.</returns>
+        Task OnBindedToView(MVVMSidekick.Views.IView view, IViewModel oldValue);
+        /// <summary>
+        /// Called when [unbinded from view].
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <param name="newValue">The new value.</param>
+        /// <returns>Task.</returns>
+        Task OnUnbindedFromView(MVVMSidekick.Views.IView view, IViewModel newValue);
+        /// <summary>
+        /// Called when [binded view load].
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <returns>Task.</returns>
+        Task OnBindedViewLoad(MVVMSidekick.Views.IView view);
+        /// <summary>
+        /// Called when [binded view unload].
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <returns>Task.</returns>
+        Task OnBindedViewUnload(MVVMSidekick.Views.IView view);
+
+
+        /// <summary>
+        /// the group that would dispose when Unbind
+        /// </summary>
+        IDisposeGroup UnbindDisposeGroup { get; }
+        /// <summary>
+        ///  the group that would dispose when Unload
+        /// </summary>
+        IDisposeGroup UnloadDisposeGroup { get; }
+
+    }
+    /// <summary>
     /// Interface IViewModel
     /// </summary>
     public partial interface IViewModel : IBindable, INotifyPropertyChanged, IViewModelLifetime
     {
-        //#if NETFX_CORE
-        //            /// <summary>
-        //            /// Gets the dispatcher of view.
-        //            /// </summary>
-        //            Windows.UI.Core.CoreDispatcher Dispatcher { get; }
-        //#else
-        //            /// <summary>
-        //            /// Gets the dispatcher of view.
-        //            /// </summary>
-        //            /// <value>The dispatcher.</value>
-        //            Dispatcher Dispatcher { get; }
+//#if NETFX_CORE  //TODO: Dispatcher For WPF and UWP need a Unify Abstract model
+//            /// <summary>
+//            /// Gets the dispatcher of view.
+//            /// </summary>
+//            Windows.UI.Core.CoreDispatcher Dispatcher { get; }
+//#else
+//        /// <summary>
+//        /// Gets the dispatcher of view.
+//        /// </summary>
+//        /// <value>The dispatcher.</value>
+//        Dispatcher Dispatcher { get; }
 
-        //#endif
+//#endif
         /// <summary>
         /// Waits for close.
         /// </summary>
@@ -132,20 +176,22 @@ namespace MVVMSidekick.ViewModels
 
 #if NETFX_CORE
 
-        /// <summary>
-        /// Load state of this view
-        /// </summary>
-        /// <param name="navigationParameter"></param>
-        /// <param name="pageState"></param>
-        void LoadState(Object navigationParameter, Dictionary<String, Object> pageState);
+            /// <summary>
+            /// Load state of this view
+            /// </summary>
+            /// <param name="navigationParameter"></param>
+            /// <param name="pageState"></param>
+            void LoadState(Object navigationParameter, Dictionary<String, Object> pageState);
 
-        /// <summary>
-        /// Save state of this view
-        /// </summary>
-        /// <param name="pageState"></param>
-        void SaveState(Dictionary<String, Object> pageState);
+            /// <summary>
+            /// Save state of this view
+            /// </summary>
+            /// <param name="pageState"></param>
+            void SaveState(Dictionary<String, Object> pageState);
 #endif
     }
+
+
 
     /// <summary>
     /// Interface IViewModel
