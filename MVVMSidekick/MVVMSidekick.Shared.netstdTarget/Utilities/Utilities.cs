@@ -128,7 +128,6 @@ namespace MVVMSidekick
 #if SILVERLIGHT_5||WINDOWS_PHONE_7||NET40
 				await TaskEx.Delay(ms);
 
-
 #else
 
 				await Task.Delay(ms);

@@ -33,9 +33,7 @@ namespace MVVMSidekick.Utilities
                     (
 
                         _IsInDesignMode =
-#if SILVERLIGHT_5 || WINDOWS_PHONE_8 || WINDOWS_PHONE_7
- DesignerProperties.IsInDesignTool
-#elif NETFX_CORE
+#if  NETFX_CORE
  Windows.ApplicationModel.DesignMode.DesignModeEnabled
 #elif NETSTANDARD
                       true  //TODO:NEED Set To False in bootstraper if is in a NETSTANDARD class lib

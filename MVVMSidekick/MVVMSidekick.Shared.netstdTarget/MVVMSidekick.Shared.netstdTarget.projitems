@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Reactive\Reactive.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Reactive\ReactiveExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ServicesLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\Runtime.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\BindableBase.cs" />
@@ -44,8 +45,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Views\IStage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\IStageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\IView.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Commands\NewFolder\" />
   </ItemGroup>
 </Project>

@@ -62,178 +62,189 @@ namespace MVVMSidekick
 {
 
 
-	namespace Views
-	{
+    namespace Views
+    {
 
 
-		/// <summary>
-		/// Class ViewHelper.
-		/// </summary>
-		public static class ViewHelper
-		{
-			/// <summary>
-			/// The default vm name
-			/// </summary>
-			public static readonly string DEFAULT_VM_NAME = "DesignVM";
-			/// <summary>
-			/// Gets the default designing view model.
-			/// </summary>
-			/// <param name="view">The view.</param>
-			/// <returns>System.Object.</returns>
-			public static object GetDefaultDesigningViewModel(this IView view)
-			{
-				var f = view as FrameworkElement;
-				object rval = null;
+        /// <summary>
+        /// Class ViewHelper.
+        /// </summary>
+        public static class ViewHelper
+        {
+
+            /// <summary>
+            /// Closes the view and dispose.
+            /// </summary>
+            public static void CloseViewAndDispose(this IViewModel vm)
+            {
+                vm?.StageManager?.CurrentBindingView?.SelfClose();
+                vm?.Dispose();
+            }
+
+
+            /// <summary>
+            /// The default vm name
+            /// </summary>
+            public static readonly string DEFAULT_VM_NAME = "DesignVM";
+            /// <summary>
+            /// Gets the default designing view model.
+            /// </summary>
+            /// <param name="view">The view.</param>
+            /// <returns>System.Object.</returns>
+            public static object GetDefaultDesigningViewModel(this IView view)
+            {
+                var f = view as FrameworkElement;
+                object rval = null;
 #if NETFX_CORE
 				if (!f.Resources.ContainsKey(DEFAULT_VM_NAME))
 #else
-				if (!f.Resources.Contains(DEFAULT_VM_NAME))
+                if (!f.Resources.Contains(DEFAULT_VM_NAME))
 #endif
-				{
-					return null;
-				}
-				else
-				{
-					rval = f.Resources[DEFAULT_VM_NAME];
-				}
-				return rval;
-			}
+                {
+                    return null;
+                }
+                else
+                {
+                    rval = f.Resources[DEFAULT_VM_NAME];
+                }
+                return rval;
+            }
 
-			/// <summary>
-			/// The view unload call back
-			/// </summary>
-			internal static RoutedEventHandler ViewUnloadCallBack
-				= async (o, e) =>
-				{
-					IView v = o as IView;
-					if (v != null)
-					{
-						var m = v.ViewModel as IViewModelLifetime;
-						if (m != null)
-						{
-							await m.OnBindedViewUnload(v);
-						}
-					}
-				};
+            /// <summary>
+            /// The view unload call back
+            /// </summary>
+            internal static RoutedEventHandler ViewUnloadCallBack
+                = async (o, e) =>
+                {
+                    IView v = o as IView;
+                    if (v != null)
+                    {
+                        var m = v.ViewModel as IViewModelLifetime;
+                        if (m != null)
+                        {
+                            await m.OnBindedViewUnload(v);
+                        }
+                    }
+                };
 
-			/// <summary>
-			/// The view load call back
-			/// </summary>
-			internal static RoutedEventHandler ViewLoadCallBack
-				= async (o, e) =>
-				{
-					IView v = o as IView;
-					if (v != null)
-					{
-						var m = v.ViewModel as IViewModelLifetime;
-						if (m != null)
-						{
-							await m.OnBindedViewLoad(v);
-						}
-					}
-				};
-			/// <summary>
-			/// The designing view model changed call back
-			/// </summary>
-			internal static PropertyChangedCallback DesigningViewModelChangedCallBack
-				= (o, e) =>
-					  {
-						  var oiview = o as IView;
-						  if (Utilities.Runtime.IsInDesignMode)
-						  {
-							  oiview.ViewModel = e.NewValue as IViewModel;
-						  }
-					  };
+            /// <summary>
+            /// The view load call back
+            /// </summary>
+            internal static RoutedEventHandler ViewLoadCallBack
+                = async (o, e) =>
+                {
+                    IView v = o as IView;
+                    if (v != null)
+                    {
+                        var m = v.ViewModel as IViewModelLifetime;
+                        if (m != null)
+                        {
+                            await m.OnBindedViewLoad(v);
+                        }
+                    }
+                };
+            /// <summary>
+            /// The designing view model changed call back
+            /// </summary>
+            internal static PropertyChangedCallback DesigningViewModelChangedCallBack
+                = (o, e) =>
+                      {
+                          var oiview = o as IView;
+                          if (Utilities.Runtime.IsInDesignMode)
+                          {
+                              oiview.ViewModel = e.NewValue as IViewModel;
+                          }
+                      };
 
 
 
-			/// <summary>
-			/// The view model changed callback
-			/// </summary>
-			internal static PropertyChangedCallback ViewModelChangedCallback
-				= (o, e) =>
-				{
-					dynamic item = o;
-					var oiview = o as IView;
-					var fele = (oiview.ContentObject as FrameworkElement);
-					if (fele == null)
-					{
-						return;
-					}
-					if (object.ReferenceEquals(fele.DataContext, e.NewValue))
-					{
-						return;
-					}
-					(oiview.ContentObject as FrameworkElement).DataContext = e.NewValue;
-					var nv = e.NewValue as IViewModel;
-					var ov = e.OldValue as IViewModel;
-					if (ov != null)
-					{
-						ov.OnUnbindedFromView(oiview, nv);
-					}
-					if (nv != null)
-					{
-						nv.OnBindedToView(oiview, ov);
-					}
+            /// <summary>
+            /// The view model changed callback
+            /// </summary>
+            internal static PropertyChangedCallback ViewModelChangedCallback
+                = (o, e) =>
+                {
+                    dynamic item = o;
+                    var oiview = o as IView;
+                    var fele = (oiview.ContentObject as FrameworkElement);
+                    if (fele == null)
+                    {
+                        return;
+                    }
+                    if (object.ReferenceEquals(fele.DataContext, e.NewValue))
+                    {
+                        return;
+                    }
+                    (oiview.ContentObject as FrameworkElement).DataContext = e.NewValue;
+                    var nv = e.NewValue as IViewModel;
+                    var ov = e.OldValue as IViewModel;
+                    if (ov != null)
+                    {
+                        ov.OnUnbindedFromView(oiview, nv);
+                    }
+                    if (nv != null)
+                    {
+                        nv.OnBindedToView(oiview, ov);
+                    }
 
-				};
+                };
 
-			/// <summary>
-			/// Gets the content and create if null.
-			/// </summary>
-			/// <param name="control">The control.</param>
-			/// <returns>FrameworkElement.</returns>
-			internal static FrameworkElement GetContentAndCreateIfNull(this IView control)
-			{
-				var c = (control.ContentObject as FrameworkElement);
-				if (c == null)
-				{
-					control.ContentObject = c = new Grid();
-				}
-				return c;
-			}
+            /// <summary>
+            /// Gets the content and create if null.
+            /// </summary>
+            /// <param name="control">The control.</param>
+            /// <returns>FrameworkElement.</returns>
+            internal static FrameworkElement GetContentAndCreateIfNull(this IView control)
+            {
+                var c = (control.ContentObject as FrameworkElement);
+                if (c == null)
+                {
+                    control.ContentObject = c = new Grid();
+                }
+                return c;
+            }
 
-			/// <summary>
-			/// Selfs the close.
-			/// </summary>
-			/// <param name="view">The view.</param>
-			public static void SelfClose(this IView view)
-			{
+            /// <summary>
+            /// Selfs the close.
+            /// </summary>
+            /// <param name="view">The view.</param>
+            public static void SelfClose(this IView view)
+            {
 
-				if (view is UserControl || view is Page)
-				{
-					var viewElement = view as FrameworkElement;
-					var parent = viewElement.Parent;
-					if (parent is Panel)
-					{
-						(parent as Panel).Children.Remove(viewElement);
-					}
-					else if (parent is Frame)
-					{
-						var f = (parent as Frame);
-						if (f.CanGoBack)
-						{
-							f.GoBack();
-						}
-						else
-						{
-							f.Content = null;
-						}
-					}
-					else if (parent is ContentControl)
-					{
-						(parent as ContentControl).Content = null;
-					}
-					else if (parent is Page)
-					{
-						(parent as Page).Content = null;
-					}
-					else if (parent is UserControl)
-					{
-						(parent as UserControl).Content = null;
-					}
+                if (view is UserControl || view is Page)
+                {
+                    var viewElement = view as FrameworkElement;
+                    var parent = viewElement.Parent;
+                    if (parent is Panel)
+                    {
+                        (parent as Panel).Children.Remove(viewElement);
+                    }
+                    else if (parent is Frame)
+                    {
+                        var f = (parent as Frame);
+                        if (f.CanGoBack)
+                        {
+                            f.GoBack();
+                        }
+                        else
+                        {
+                            f.Content = null;
+                        }
+                    }
+                    else if (parent is ContentControl)
+                    {
+                        (parent as ContentControl).Content = null;
+                    }
+                    else if (parent is Page)
+                    {
+                        (parent as Page).Content = null;
+                    }
+                    else if (parent is UserControl)
+                    {
+                        (parent as UserControl).Content = null;
+                    }
 
-				}
+                }
 #if WPF
 				else if (view is Window)
 				{
@@ -242,9 +253,9 @@ namespace MVVMSidekick
 #endif
 
 
-			}
+            }
 
-		}
+        }
 
 #if WPF
 		/// <summary>
@@ -410,12 +421,12 @@ namespace MVVMSidekick
 		/// </summary>
 		public partial class MVVMPage : PhoneApplicationPage, IView
 #else
-		/// <summary>
-		/// Class MVVMPage.
-		/// </summary>
-		public class MVVMPage : Page, IView
+        /// <summary>
+        /// Class MVVMPage.
+        /// </summary>
+        public class MVVMPage : Page, IView
 #endif
-		{
+        {
 
             object IView.Parent => this.Parent;
 
@@ -423,13 +434,13 @@ namespace MVVMSidekick
             /// Initializes a new instance of the <see cref="MVVMPage" /> class.
             /// </summary>
             public MVVMPage()
-				//: this(null)
-			{
+            //: this(null)
+            {
 #if WPF
 				Loaded += ViewHelper.ViewLoadCallBack;
 				Unloaded += ViewHelper.ViewUnloadCallBack;
 #endif
-			}
+            }
 
 
 
@@ -455,113 +466,113 @@ namespace MVVMSidekick
 
 #endif
 
-//			/// <summary>
-//			/// Initializes a new instance of the <see cref="MVVMPage" /> class.
-//			/// </summary>
-//			/// <param name="viewModel">The view model.</param>
-//			public MVVMPage(IViewModel viewModel)
-//			{
-//				ViewModel = viewModel;
-//				Unloaded += ViewHelper.ViewUnloadCallBack;
-//#if WPF
-//				Loaded += async (o, e) =>
-//					{
-//						if (viewModel != null)
-//						{
-//							if (!object.ReferenceEquals(ViewModel, viewModel))
-//							{
-//								ViewModel = viewModel;
-//							}
-//						}
+            //			/// <summary>
+            //			/// Initializes a new instance of the <see cref="MVVMPage" /> class.
+            //			/// </summary>
+            //			/// <param name="viewModel">The view model.</param>
+            //			public MVVMPage(IViewModel viewModel)
+            //			{
+            //				ViewModel = viewModel;
+            //				Unloaded += ViewHelper.ViewUnloadCallBack;
+            //#if WPF
+            //				Loaded += async (o, e) =>
+            //					{
+            //						if (viewModel != null)
+            //						{
+            //							if (!object.ReferenceEquals(ViewModel, viewModel))
+            //							{
+            //								ViewModel = viewModel;
+            //							}
+            //						}
 
-//						if (ViewModel != null)
-//						{
-//							await ViewModel.OnBindedViewLoad(this);
-//						}
+            //						if (ViewModel != null)
+            //						{
+            //							await ViewModel.OnBindedViewLoad(this);
+            //						}
 
-//					};
-//#endif
+            //					};
+            //#endif
 
-//			}
+            //			}
 
 
 
 
 #if !WPF
-			//WPF Pages' Content are objects but others are FE .
-			/// <summary>
-			/// Gets or sets the content object.
-			/// </summary>
-			/// <value>The content object.</value>
-			public object ContentObject
-			{
-				get { return Content; }
-				set { Content = value as FrameworkElement; }
+            //WPF Pages' Content are objects but others are FE .
+            /// <summary>
+            /// Gets or sets the content object.
+            /// </summary>
+            /// <value>The content object.</value>
+            public object ContentObject
+            {
+                get { return Content; }
+                set { Content = value as FrameworkElement; }
 
-			}
+            }
 
-			/// <summary>
-			/// The is loaded
-			/// </summary>
-			bool IsLoaded = false;
+            /// <summary>
+            /// The is loaded
+            /// </summary>
+            bool IsLoaded = false;
 
-			//WPF navigates page instances but other navgates with parameters
-			/// <summary>
-			/// Handles the <see cref="E:NavigatedTo" /> event.
-			/// </summary>
-			/// <param name="e">The <see cref="NavigationEventArgs" /> instance containing the event data.</param>
-			protected override void OnNavigatedTo(NavigationEventArgs e)
-			{
+            //WPF navigates page instances but other navgates with parameters
+            /// <summary>
+            /// Handles the <see cref="E:NavigatedTo" /> event.
+            /// </summary>
+            /// <param name="e">The <see cref="NavigationEventArgs" /> instance containing the event data.</param>
+            protected override void OnNavigatedTo(NavigationEventArgs e)
+            {
 
-				base.OnNavigatedTo(e);
-				RoutedEventHandler loadEvent = null;
+                base.OnNavigatedTo(e);
+                RoutedEventHandler loadEvent = null;
 
-				loadEvent =  (_1, _2) =>
-				{																 
-					EventRouting.EventRouter.Instance.RaiseEvent(this, e);	//VM Is Ready after this
-					IsLoaded = true;
-					this.Loaded -= loadEvent;									 
+                loadEvent = (_1, _2) =>
+               {
+                   EventRouting.EventRouter.Instance.RaiseEvent(this, e);   //VM Is Ready after this
+                    IsLoaded = true;
+                   this.Loaded -= loadEvent;
 
-				};
-
-			
-
-				this.Loaded += loadEvent;
-
-				Loaded += ViewHelper.ViewLoadCallBack;
-				Unloaded += ViewHelper.ViewUnloadCallBack;
-
-			}
+               };
 
 
 
+                this.Loaded += loadEvent;
 
-			/// <summary>
-			/// Handles the <see cref="E:NavigatedFrom" /> event.
-			/// </summary>
-			/// <param name="e">The <see cref="NavigationEventArgs" /> instance containing the event data.</param>
-			protected override void OnNavigatedFrom(NavigationEventArgs e)
-			{
-				base.OnNavigatedFrom(e);
+                Loaded += ViewHelper.ViewLoadCallBack;
+                Unloaded += ViewHelper.ViewUnloadCallBack;
+
+            }
+
+
+
+
+            /// <summary>
+            /// Handles the <see cref="E:NavigatedFrom" /> event.
+            /// </summary>
+            /// <param name="e">The <see cref="NavigationEventArgs" /> instance containing the event data.</param>
+            protected override void OnNavigatedFrom(NavigationEventArgs e)
+            {
+                base.OnNavigatedFrom(e);
 
 #if SILVERLIGHT_5
 				if (ViewModel.StageManager.DefaultStage.NavigateRequestContexts.ContainsKey(e.Uri.ToString()))
 #else
-				if (e.NavigationMode == NavigationMode.Back)
+                if (e.NavigationMode == NavigationMode.Back)
 #endif
 
-				{
+                {
 
-					if (ViewModel != null)
-					{
+                    if (ViewModel != null)
+                    {
 
-						ViewModel.Dispose();
-					}
+                        ViewModel.Dispose();
+                    }
 
 
-				}
+                }
 
-			}
+            }
 #else
 			/// <summary>
 			/// the first object of view content.
@@ -581,77 +592,77 @@ namespace MVVMSidekick
 
 
 
-			//public IViewModel DesigningViewModel
-			//{
-			//	get { return (IViewModel)GetValue(DesigningViewModelProperty); }
-			//	set { SetValue(DesigningViewModelProperty, value); }
-			//}
+            //public IViewModel DesigningViewModel
+            //{
+            //	get { return (IViewModel)GetValue(DesigningViewModelProperty); }
+            //	set { SetValue(DesigningViewModelProperty, value); }
+            //}
 
-			//// Using a DependencyProperty as the backing store for DesigningViewModel.  This enables animation, styling, binding, etc...
-			//public static readonly DependencyProperty DesigningViewModelProperty =
-			//	DependencyProperty.Register("DesigningViewModel", typeof(IViewModel), typeof(MVVMPage), new PropertyMetadata(null, ViewHelper.DesigningViewModelChangedCallBack));
+            //// Using a DependencyProperty as the backing store for DesigningViewModel.  This enables animation, styling, binding, etc...
+            //public static readonly DependencyProperty DesigningViewModelProperty =
+            //	DependencyProperty.Register("DesigningViewModel", typeof(IViewModel), typeof(MVVMPage), new PropertyMetadata(null, ViewHelper.DesigningViewModelChangedCallBack));
 
 
-			/// <summary>
-			/// Gets or sets the view model.
-			/// </summary>
-			/// <value>The view model.</value>
-			public IViewModel ViewModel
-			{
-				get
-				{
-					var rval = GetValue(ViewModelProperty) as IViewModel;
-					var c = this.GetContentAndCreateIfNull();
-					if (rval == null)
-					{
+            /// <summary>
+            /// Gets or sets the view model.
+            /// </summary>
+            /// <value>The view model.</value>
+            public IViewModel ViewModel
+            {
+                get
+                {
+                    var rval = GetValue(ViewModelProperty) as IViewModel;
+                    var c = this.GetContentAndCreateIfNull();
+                    if (rval == null)
+                    {
 
-						rval = c.DataContext as IViewModel;
-						SetValue(ViewModelProperty, rval);
+                        rval = c.DataContext as IViewModel;
+                        SetValue(ViewModelProperty, rval);
 
-					}
-					else
-					{
+                    }
+                    else
+                    {
 
-						if (!Object.ReferenceEquals(c.DataContext, rval))
-						{
-							c.DataContext = rval;
-						}
-					}
-					return rval;
-				}
-				set
-				{
+                        if (!Object.ReferenceEquals(c.DataContext, rval))
+                        {
+                            c.DataContext = rval;
+                        }
+                    }
+                    return rval;
+                }
+                set
+                {
 
-					SetValue(ViewModelProperty, value);
-					var c = this.GetContentAndCreateIfNull();
-					if (!Object.ReferenceEquals(c.DataContext, value))
-					{
-						c.DataContext = value;
-					}
+                    SetValue(ViewModelProperty, value);
+                    var c = this.GetContentAndCreateIfNull();
+                    if (!Object.ReferenceEquals(c.DataContext, value))
+                    {
+                        c.DataContext = value;
+                    }
 
-				}
-			}
+                }
+            }
 
-			// Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
-			/// <summary>
-			/// The view model property
-			/// </summary>
-			public static readonly DependencyProperty ViewModelProperty =
-				DependencyProperty.Register("ViewModel", typeof(IViewModel), typeof(MVVMPage), new PropertyMetadata(null,
-					(o, e) =>
-					{
-						var p = o as MVVMPage;
+            // Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
+            /// <summary>
+            /// The view model property
+            /// </summary>
+            public static readonly DependencyProperty ViewModelProperty =
+                DependencyProperty.Register("ViewModel", typeof(IViewModel), typeof(MVVMPage), new PropertyMetadata(null,
+                    (o, e) =>
+                    {
+                        var p = o as MVVMPage;
 #if !WPF
-						if (p.IsLoaded)
-						{
-							ViewHelper.ViewModelChangedCallback(o, e);
-						}
+                        if (p.IsLoaded)
+                        {
+                            ViewHelper.ViewModelChangedCallback(o, e);
+                        }
 #else
 						ViewHelper.ViewModelChangedCallback(o, e);
 #endif
-					}
+                    }
 
-					));
+                    ));
 
 
 #if NETFX_CORE
@@ -689,89 +700,89 @@ namespace MVVMSidekick
 #endif
 
 
-			/// <summary>
-			/// Gets the type of the view.
-			/// </summary>
-			/// <value>The type of the view.</value>
-			public ViewType ViewType
-			{
-				get { return ViewType.Page; }
-			}
+            /// <summary>
+            /// Gets the type of the view.
+            /// </summary>
+            /// <value>The type of the view.</value>
+            public ViewType ViewType
+            {
+                get { return ViewType.Page; }
+            }
 
 
 
 
-		}
+        }
 
 
 
-		/// <summary>
-		/// Class MVVMControl.
-		/// </summary>
-		public class MVVMControl : UserControl, IView
-		{
+        /// <summary>
+        /// Class MVVMControl.
+        /// </summary>
+        public class MVVMControl : UserControl, IView
+        {
 
-			/// <summary>
-			/// Initializes a new instance of the <see cref="MVVMControl" /> class.
-			/// </summary>
-			public MVVMControl()
-				
-			{
-				Loaded += ViewHelper.ViewLoadCallBack;
-				Unloaded += ViewHelper.ViewUnloadCallBack;
-			
-			}
+            /// <summary>
+            /// Initializes a new instance of the <see cref="MVVMControl" /> class.
+            /// </summary>
+            public MVVMControl()
+
+            {
+                Loaded += ViewHelper.ViewLoadCallBack;
+                Unloaded += ViewHelper.ViewUnloadCallBack;
+
+            }
 
 
-			///// <summary>
-			///// Initializes a new instance of the <see cref="MVVMControl" /> class.
-			///// </summary>
-			///// <param name="viewModel">The view model.</param>
-			//public MVVMControl(IViewModel viewModel)
-			//{
-			//	ViewModel = viewModel;
-			//	Unloaded += ViewHelper.ViewUnloadCallBack;
-			//	////////// Unloaded += (_1, _2) => ViewModel = null;
-			//	Loaded += async (_1, _2) =>
-			//	{
+            ///// <summary>
+            ///// Initializes a new instance of the <see cref="MVVMControl" /> class.
+            ///// </summary>
+            ///// <param name="viewModel">The view model.</param>
+            //public MVVMControl(IViewModel viewModel)
+            //{
+            //	ViewModel = viewModel;
+            //	Unloaded += ViewHelper.ViewUnloadCallBack;
+            //	////////// Unloaded += (_1, _2) => ViewModel = null;
+            //	Loaded += async (_1, _2) =>
+            //	{
 
-			//		if (viewModel != null)
-			//		{
-			//			//this.Resources[ViewHelper.DEFAULT_VM_NAME] = viewModel;
-			//			if (!object.ReferenceEquals(ViewModel, viewModel))
-			//			{
-			//				ViewModel = viewModel;
+            //		if (viewModel != null)
+            //		{
+            //			//this.Resources[ViewHelper.DEFAULT_VM_NAME] = viewModel;
+            //			if (!object.ReferenceEquals(ViewModel, viewModel))
+            //			{
+            //				ViewModel = viewModel;
 
-			//			}
-			//		}
-			//		//else
-			//		//{
-			//		//    var solveV = this.GetDefaultViewModel();
-			//		//    if (solveV != null)
-			//		//    {
-			//		//        ViewModel = solveV;
-			//		//    }
+            //			}
+            //		}
+            //		//else
+            //		//{
+            //		//    var solveV = this.GetDefaultViewModel();
+            //		//    if (solveV != null)
+            //		//    {
+            //		//        ViewModel = solveV;
+            //		//    }
 
-			//		//}
-			//		//ViewModel = ViewModel ?? new DefaultViewModel();
+            //		//}
+            //		//ViewModel = ViewModel ?? new DefaultViewModel();
 
-			//		if (ViewModel != null)
-			//		{
-			//			await ViewModel.OnBindedViewLoad(this);
-			//		}
-			//	};
-			//}
+            //		if (ViewModel != null)
+            //		{
+            //			await ViewModel.OnBindedViewLoad(this);
+            //		}
+            //	};
+            //}
 #if !WPF
-			/// <summary>
-			/// Gets or sets the content object.
-			/// </summary>
-			/// <value>The content object.</value>
-			public object ContentObject
-			{
-				get { return Content; }
-				set { Content = value as FrameworkElement; }
+            /// <summary>
+            /// Gets or sets the content object.
+            /// </summary>
+            /// <value>The content object.</value>
+            public object ContentObject
+            {
+                get { return Content; }
+                set { Content = value as FrameworkElement; }
 
-			}
+            }
 #else
 			/// <summary>
 			/// the first object of view content.
@@ -821,102 +832,102 @@ namespace MVVMSidekick
 			}
 #endif
 
-			//public IViewModel DesigningViewModel
-			//{
-			//	get { return (IViewModel)GetValue(DesigningViewModelProperty); }
-			//	set { SetValue(DesigningViewModelProperty, value); }
-			//}
+            //public IViewModel DesigningViewModel
+            //{
+            //	get { return (IViewModel)GetValue(DesigningViewModelProperty); }
+            //	set { SetValue(DesigningViewModelProperty, value); }
+            //}
 
-			//// Using a DependencyProperty as the backing store for DesigningViewModel.  This enables animation, styling, binding, etc...
-			//public static readonly DependencyProperty DesigningViewModelProperty =
-			//	DependencyProperty.Register("DesigningViewModel", typeof(IViewModel), typeof(MVVMControl), new PropertyMetadata(null, ViewHelper.DesigningViewModelChangedCallBack));
-			/// <summary>
-			/// Gets or sets the view model.
-			/// </summary>
-			/// <value>The view model.</value>
-			public IViewModel ViewModel
-			{
-				get
-				{
-					var vm = GetValue(ViewModelProperty) as IViewModel;
-					var content = this.GetContentAndCreateIfNull();
-					if (vm == null)
-					{
+            //// Using a DependencyProperty as the backing store for DesigningViewModel.  This enables animation, styling, binding, etc...
+            //public static readonly DependencyProperty DesigningViewModelProperty =
+            //	DependencyProperty.Register("DesigningViewModel", typeof(IViewModel), typeof(MVVMControl), new PropertyMetadata(null, ViewHelper.DesigningViewModelChangedCallBack));
+            /// <summary>
+            /// Gets or sets the view model.
+            /// </summary>
+            /// <value>The view model.</value>
+            public IViewModel ViewModel
+            {
+                get
+                {
+                    var vm = GetValue(ViewModelProperty) as IViewModel;
+                    var content = this.GetContentAndCreateIfNull();
+                    if (vm == null)
+                    {
 
-						vm = content.DataContext as IViewModel;
-						SetValue(ViewModelProperty, vm);
+                        vm = content.DataContext as IViewModel;
+                        SetValue(ViewModelProperty, vm);
 
-					}
-					else
-					{
-						IView view = this;
-
-
-						if (!Object.ReferenceEquals(content.DataContext, vm))
-						{
-
-							content.DataContext = vm;
-						}
-					}
-					return vm;
-				}
-				set
-				{
-					SetValue(ViewModelProperty, value);
-					var c = this.GetContentAndCreateIfNull();
-					if (!Object.ReferenceEquals(c.DataContext, value))
-					{
-						c.DataContext = value;
-					}
-
-				}
-			}
-
-			// Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
-			/// <summary>
-			/// The view model property
-			/// </summary>
-			public static readonly DependencyProperty ViewModelProperty =
-				DependencyProperty.Register("ViewModel", typeof(IViewModel), typeof(MVVMControl), new PropertyMetadata(null, ViewHelper.ViewModelChangedCallback));
+                    }
+                    else
+                    {
+                        IView view = this;
 
 
-			/// <summary>
-			/// Gets the type of the view.
-			/// </summary>
-			/// <value>The type of the view.</value>
-			public ViewType ViewType
-			{
-				get { return ViewType.Control; }
-			}
+                        if (!Object.ReferenceEquals(content.DataContext, vm))
+                        {
 
-            object IView.Parent =>Parent;
+                            content.DataContext = vm;
+                        }
+                    }
+                    return vm;
+                }
+                set
+                {
+                    SetValue(ViewModelProperty, value);
+                    var c = this.GetContentAndCreateIfNull();
+                    if (!Object.ReferenceEquals(c.DataContext, value))
+                    {
+                        c.DataContext = value;
+                    }
+
+                }
+            }
+
+            // Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
+            /// <summary>
+            /// The view model property
+            /// </summary>
+            public static readonly DependencyProperty ViewModelProperty =
+                DependencyProperty.Register("ViewModel", typeof(IViewModel), typeof(MVVMControl), new PropertyMetadata(null, ViewHelper.ViewModelChangedCallback));
+
+
+            /// <summary>
+            /// Gets the type of the view.
+            /// </summary>
+            /// <value>The type of the view.</value>
+            public ViewType ViewType
+            {
+                get { return ViewType.Control; }
+            }
+
+            object IView.Parent => Parent;
         }
 
 
 
 
-		/// <summary>
-		/// Struct ViewModelToViewMapper
-		/// </summary>
-		/// <typeparam name="TModel">The type of the t model.</typeparam>
-		public struct ViewModelToViewMapper<TModel>
-			where TModel : IViewModel
-		{
+        /// <summary>
+        /// Struct ViewModelToViewMapper
+        /// </summary>
+        /// <typeparam name="TModel">The type of the t model.</typeparam>
+        public struct ViewModelToViewMapper<TModel>
+            where TModel : IViewModel
+        {
 
-			/// <summary>
-			/// Maps the view to view model.
-			/// </summary>
-			/// <typeparam name="TView">The type of the t view.</typeparam>
-			public static void MapViewToViewModel<TView>()
-			{
-				Func<IViewModel> func;
-				if (!ViewModelToViewMapperHelper.ViewToVMMapping.TryGetValue(typeof(TView), out func))
-				{
-					ViewModelToViewMapperHelper.ViewToVMMapping.Add(typeof(TView), () => (ViewModelLocator<TModel>.Instance.Resolve()));
-				}
+            /// <summary>
+            /// Maps the view to view model.
+            /// </summary>
+            /// <typeparam name="TView">The type of the t view.</typeparam>
+            public static void MapViewToViewModel<TView>()
+            {
+                Func<IViewModel> func;
+                if (!ViewModelToViewMapperHelper.ViewToVMMapping.TryGetValue(typeof(TView), out func))
+                {
+                    ViewModelToViewMapperHelper.ViewToVMMapping.Add(typeof(TView), () => (ViewModelLocator<TModel>.Instance.Resolve()));
+                }
 
 
-			}
+            }
 #if WPF
 			/// <summary>
 			/// Maps to default.
@@ -1001,88 +1012,88 @@ namespace MVVMSidekick
 				return this;
 			}
 #else
-			/// <summary>
-			/// Maps to default control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="instance">The instance.</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(TControl instance) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(instance);
-				return this;
-			}
+            /// <summary>
+            /// Maps to default control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="instance">The instance.</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(TControl instance) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(instance);
+                return this;
+            }
 
-			/// <summary>
-			/// Maps to control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="viewMappingKey">The view mapping key.</param>
-			/// <param name="instance">The instance.</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, TControl instance) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, instance);
-				return this;
-			}
+            /// <summary>
+            /// Maps to control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="viewMappingKey">The view mapping key.</param>
+            /// <param name="instance">The instance.</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, TControl instance) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, instance);
+                return this;
+            }
 
 
-			/// <summary>
-			/// Maps to default control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(bool alwaysNew = true) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(null, d => (TControl)Activator.CreateInstance(typeof(TControl)), alwaysNew);
-				return this;
-			}
-			/// <summary>
-			/// Maps to control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="viewMappingKey">The view mapping key.</param>
-			/// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, bool alwaysNew = true) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, d => (TControl)Activator.CreateInstance(typeof(TControl)), alwaysNew);
-				return this;
-			}
+            /// <summary>
+            /// Maps to default control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(bool alwaysNew = true) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(null, d => (TControl)Activator.CreateInstance(typeof(TControl)), alwaysNew);
+                return this;
+            }
+            /// <summary>
+            /// Maps to control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="viewMappingKey">The view mapping key.</param>
+            /// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, bool alwaysNew = true) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, d => (TControl)Activator.CreateInstance(typeof(TControl)), alwaysNew);
+                return this;
+            }
 
-			/// <summary>
-			/// Maps to default control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="factory">The factory.</param>
-			/// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(Func<TModel, TControl> factory, bool alwaysNew = true) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(null, d => factory((TModel)d), alwaysNew);
-				return this;
-			}
+            /// <summary>
+            /// Maps to default control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="factory">The factory.</param>
+            /// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToDefaultControl<TControl>(Func<TModel, TControl> factory, bool alwaysNew = true) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(null, d => factory((TModel)d), alwaysNew);
+                return this;
+            }
 
-			/// <summary>
-			/// Maps to control.
-			/// </summary>
-			/// <typeparam name="TControl">The type of the control.</typeparam>
-			/// <param name="viewMappingKey">The view mapping key.</param>
-			/// <param name="factory">The factory.</param>
-			/// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
-			/// <returns></returns>
-			public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, Func<TModel, TControl> factory, bool alwaysNew = true) where TControl : MVVMControl
-			{
-				MapViewToViewModel<TControl>();
-				ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, d => factory((TModel)d), alwaysNew);
-				return this;
-			}
+            /// <summary>
+            /// Maps to control.
+            /// </summary>
+            /// <typeparam name="TControl">The type of the control.</typeparam>
+            /// <param name="viewMappingKey">The view mapping key.</param>
+            /// <param name="factory">The factory.</param>
+            /// <param name="alwaysNew">if set to <c>true</c> [always new].</param>
+            /// <returns></returns>
+            public ViewModelToViewMapper<TModel> MapToControl<TControl>(string viewMappingKey, Func<TModel, TControl> factory, bool alwaysNew = true) where TControl : MVVMControl
+            {
+                MapViewToViewModel<TControl>();
+                ViewModelToViewMapperServiceLocator<TModel>.Instance.Register(viewMappingKey, d => factory((TModel)d), alwaysNew);
+                return this;
+            }
 #endif
 
 #if WINDOWS_PHONE_8 || WINDOWS_PHONE_7 || SILVERLIGHT_5
@@ -1182,191 +1193,191 @@ namespace MVVMSidekick
 #endif
 
 
-		}
+        }
 
-		/// <summary>
-		/// 		 class ViewModelToViewMapperHelper
-		/// </summary>
-		public static class ViewModelToViewMapperHelper
-		{
+        /// <summary>
+        /// 		 class ViewModelToViewMapperHelper
+        /// </summary>
+        public static class ViewModelToViewMapperHelper
+        {
 
-			internal static Dictionary<Type, Func<IViewModel>> ViewToVMMapping = new Dictionary<Type, Func<IViewModel>>();
+            internal static Dictionary<Type, Func<IViewModel>> ViewToVMMapping = new Dictionary<Type, Func<IViewModel>>();
 
-			/// <summary>
-			/// Gets the default view model.
-			/// </summary>
-			/// <param name="view">The view.</param>
-			/// <returns></returns>
-			public static IViewModel GetDefaultViewModel(this IView view)
-			{
-				Func<IViewModel> func;
-				var vt = view.GetType();
-				if (ViewModelToViewMapperHelper.ViewToVMMapping.TryGetValue(vt, out func))
-				{
+            /// <summary>
+            /// Gets the default view model.
+            /// </summary>
+            /// <param name="view">The view.</param>
+            /// <returns></returns>
+            public static IViewModel GetDefaultViewModel(this IView view)
+            {
+                Func<IViewModel> func;
+                var vt = view.GetType();
+                if (ViewModelToViewMapperHelper.ViewToVMMapping.TryGetValue(vt, out func))
+                {
 
-					return func();
-				}
-				return null;
-			}
+                    return func();
+                }
+                return null;
+            }
 
-			/// <summary>
-			/// Gets the view mapper.
-			/// </summary>
-			/// <typeparam name="TViewModel">The type of the view model.</typeparam>
-			/// <param name="vmRegisterEntry">The vm register entry.</param>
-			/// <returns></returns>
-			public static ViewModelToViewMapper<TViewModel> GetViewMapper<TViewModel>(this MVVMSidekick.Services.ServiceLocatorEntryStruct<TViewModel> vmRegisterEntry)
-				  where TViewModel : IViewModel
-			{
-				return new ViewModelToViewMapper<TViewModel>();
-			}
-
-
-		}
-
-		public interface IViewModelToViewMapperServiceLocator : ITypeSpecifiedServiceLocator<object>
-		{
-
-		}
-		/// <summary>
-		/// View model to view service locator
-		/// </summary>
-		/// <typeparam name="TViewModel">The type of the view model.</typeparam>
-		public class ViewModelToViewMapperServiceLocator<TViewModel> :
-			MVVMSidekick.Services.TypeSpecifiedServiceLocatorBase<ViewModelToViewMapperServiceLocator<TViewModel>, object>,
-			IViewModelToViewMapperServiceLocator
-		{
-			/// <summary>
-			/// Constuctor
-			/// </summary>
-			static ViewModelToViewMapperServiceLocator()
-			{
-				//Instance = new ViewModelToViewMapperServiceLocator<TViewModel>();
-
-			}
-
-			static Lazy<IViewModelToViewMapperServiceLocator> _Instance = new Lazy<IViewModelToViewMapperServiceLocator>
-				(() => new ViewModelToViewMapperServiceLocator<TViewModel>(), true);
-
-			/// <summary>
-			/// Instance
-			/// </summary>
-
-			public static IViewModelToViewMapperServiceLocator Instance
-			{
-				get
-				{
-					return _Instance.Value;
-				}
-				set
-				{
-					_Instance = new Lazy<IViewModelToViewMapperServiceLocator>(() => value);
-				}
-			}
+            /// <summary>
+            /// Gets the view mapper.
+            /// </summary>
+            /// <typeparam name="TViewModel">The type of the view model.</typeparam>
+            /// <param name="vmRegisterEntry">The vm register entry.</param>
+            /// <returns></returns>
+            public static ViewModelToViewMapper<TViewModel> GetViewMapper<TViewModel>(this MVVMSidekick.Services.ServiceLocatorEntryStruct<TViewModel> vmRegisterEntry)
+                  where TViewModel : IViewModel
+            {
+                return new ViewModelToViewMapper<TViewModel>();
+            }
 
 
-		}
-		/// <summary>
-		/// Locator of view model class
-		/// </summary>
-		/// <typeparam name="TViewModel">The type of the view model.</typeparam>
-		public class ViewModelLocator<TViewModel> : MVVMSidekick.Services.TypeSpecifiedServiceLocatorBase<ViewModelLocator<TViewModel>, TViewModel>
-			where TViewModel : IViewModel
-		{
-			static ViewModelLocator()
-			{
-				Instance = new ViewModelLocator<TViewModel>();
-			}
-			/// <summary>
-			/// Gets or sets the instance.
-			/// </summary>
-			/// <value>
-			/// The instance.
-			/// </value>
-			public static ViewModelLocator<TViewModel> Instance { get; set; }
+        }
 
-		}
+        public interface IViewModelToViewMapperServiceLocator : ITypeSpecifiedServiceLocator<object>
+        {
 
+        }
+        /// <summary>
+        /// View model to view service locator
+        /// </summary>
+        /// <typeparam name="TViewModel">The type of the view model.</typeparam>
+        public class ViewModelToViewMapperServiceLocator<TViewModel> :
+            MVVMSidekick.Services.TypeSpecifiedServiceLocatorBase<ViewModelToViewMapperServiceLocator<TViewModel>, object>,
+            IViewModelToViewMapperServiceLocator
+        {
+            /// <summary>
+            /// Constuctor
+            /// </summary>
+            static ViewModelToViewMapperServiceLocator()
+            {
+                //Instance = new ViewModelToViewMapperServiceLocator<TViewModel>();
 
+            }
 
+            static Lazy<IViewModelToViewMapperServiceLocator> _Instance = new Lazy<IViewModelToViewMapperServiceLocator>
+                (() => new ViewModelToViewMapperServiceLocator<TViewModel>(), true);
 
-		/// <summary>
-		///  A bridge binds two Dependency property
-		/// </summary>
-		public class PropertyBridge : FrameworkElement
-		{
-			/// <summary>
-			/// Initializes a new instance of the <see cref="PropertyBridge"/> class.
-			/// </summary>
-			public PropertyBridge()
-			{
-				base.Width = 0;
-				base.Height = 0;
-				base.Visibility = Visibility.Collapsed;
+            /// <summary>
+            /// Instance
+            /// </summary>
 
-			}
-
-
-
-			/// <summary>
-			/// Gets or sets the source.
-			/// </summary>
-			/// <value>
-			/// The source.
-			/// </value>
-			public object Source
-			{
-				private get { return (object)GetValue(SourceProperty); }
-				set { SetValue(SourceProperty, value); }
-			}
-
-			// Using a DependencyProperty as the backing store for Source.  This enables animation, styling, binding, etc...			
-			/// <summary>
-			/// The source property
-			/// </summary>
-			public static readonly DependencyProperty SourceProperty =
-				DependencyProperty.Register("Source", typeof(object), typeof(PropertyBridge), new PropertyMetadata(null,
-
-					(o, a) =>
-					{
-						var pb = o as PropertyBridge;
-						if (pb != null)
-						{
-							pb.Target = a.NewValue;
-						}
-					}
-					));
+            public static IViewModelToViewMapperServiceLocator Instance
+            {
+                get
+                {
+                    return _Instance.Value;
+                }
+                set
+                {
+                    _Instance = new Lazy<IViewModelToViewMapperServiceLocator>(() => value);
+                }
+            }
 
 
+        }
+        /// <summary>
+        /// Locator of view model class
+        /// </summary>
+        /// <typeparam name="TViewModel">The type of the view model.</typeparam>
+        public class ViewModelLocator<TViewModel> : MVVMSidekick.Services.TypeSpecifiedServiceLocatorBase<ViewModelLocator<TViewModel>, TViewModel>
+            where TViewModel : IViewModel
+        {
+            static ViewModelLocator()
+            {
+                Instance = new ViewModelLocator<TViewModel>();
+            }
+            /// <summary>
+            /// Gets or sets the instance.
+            /// </summary>
+            /// <value>
+            /// The instance.
+            /// </value>
+            public static ViewModelLocator<TViewModel> Instance { get; set; }
 
-			/// <summary>
-			/// Gets or sets the target.
-			/// </summary>
-			/// <value>
-			/// The target.
-			/// </value>
-			public object Target
-			{
-				get { return (object)GetValue(TargetProperty); }
-				set { SetValue(TargetProperty, value); }
-			}
-
-			// Using a DependencyProperty as the backing store for Target.  This enables animation, styling, binding, etc...
-
-
-			/// <summary>
-			/// The target property
-			/// </summary>
-			public static readonly DependencyProperty TargetProperty =
-				DependencyProperty.Register("Target", typeof(object), typeof(PropertyBridge), new PropertyMetadata(null));
+        }
 
 
 
 
+        /// <summary>
+        ///  A bridge binds two Dependency property
+        /// </summary>
+        public class PropertyBridge : FrameworkElement
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="PropertyBridge"/> class.
+            /// </summary>
+            public PropertyBridge()
+            {
+                base.Width = 0;
+                base.Height = 0;
+                base.Visibility = Visibility.Collapsed;
 
-		}
+            }
 
 
 
-	}
+            /// <summary>
+            /// Gets or sets the source.
+            /// </summary>
+            /// <value>
+            /// The source.
+            /// </value>
+            public object Source
+            {
+                private get { return (object)GetValue(SourceProperty); }
+                set { SetValue(SourceProperty, value); }
+            }
+
+            // Using a DependencyProperty as the backing store for Source.  This enables animation, styling, binding, etc...			
+            /// <summary>
+            /// The source property
+            /// </summary>
+            public static readonly DependencyProperty SourceProperty =
+                DependencyProperty.Register("Source", typeof(object), typeof(PropertyBridge), new PropertyMetadata(null,
+
+                    (o, a) =>
+                    {
+                        var pb = o as PropertyBridge;
+                        if (pb != null)
+                        {
+                            pb.Target = a.NewValue;
+                        }
+                    }
+                    ));
+
+
+
+            /// <summary>
+            /// Gets or sets the target.
+            /// </summary>
+            /// <value>
+            /// The target.
+            /// </value>
+            public object Target
+            {
+                get { return (object)GetValue(TargetProperty); }
+                set { SetValue(TargetProperty, value); }
+            }
+
+            // Using a DependencyProperty as the backing store for Target.  This enables animation, styling, binding, etc...
+
+
+            /// <summary>
+            /// The target property
+            /// </summary>
+            public static readonly DependencyProperty TargetProperty =
+                DependencyProperty.Register("Target", typeof(object), typeof(PropertyBridge), new PropertyMetadata(null));
+
+
+
+
+
+        }
+
+
+
+    }
 }

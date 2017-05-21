@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MVVMSidekick.ViewModels;
+using MVVMSidekick.Views;
 using System.Reactive.Linq;
 using System.Windows;
 using System.IO;

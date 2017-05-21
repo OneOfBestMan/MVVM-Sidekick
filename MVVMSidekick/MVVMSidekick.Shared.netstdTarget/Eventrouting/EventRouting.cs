@@ -21,38 +21,7 @@ using System.Reactive.Subjects;
 using MVVMSidekick.Utilities;
 using MVVMSidekick.Common;
 using System.Runtime.CompilerServices;
-
-#if NETFX_CORE ||NETSTANDARD
-using System.Collections.Concurrent;
-
-#elif WPF
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Collections.Concurrent;
-using System.Windows.Navigation;
-
-using MVVMSidekick.Views;
-using System.Windows.Controls.Primitives;
-
-
-#elif SILVERLIGHT_5 || SILVERLIGHT_4
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Navigation;
-using System.Windows.Controls.Primitives;
-#elif WINDOWS_PHONE_8 || WINDOWS_PHONE_7
-using System.Windows;
-using System.Windows.Controls;
-using Microsoft.Phone.Controls;
-using System.Windows.Data;
-using System.Windows.Navigation;
-using System.Windows.Controls.Primitives;
-#endif
-
-
-				
+using System.Collections.Concurrent;				
 
 
 namespace MVVMSidekick
@@ -106,9 +75,7 @@ namespace MVVMSidekick
 			/// <param name="eventArgs">事件数据</param>
 			/// <param name="callerMemberNameOrEventName">发送事件名</param>
 			public virtual void RaiseEvent<TEventArgs>(object sender, TEventArgs eventArgs, string callerMemberNameOrEventName = "", bool isFiringToAllBaseClassChannels = false, bool isFiringToAllImplementedInterfaceChannels = false)
-			//#if !NETFX_CORE
-			//// where TEventArgs : EventArgs
-			//#endif
+
 			{
 				RaiseEvent(sender, eventArgs, typeof(TEventArgs), callerMemberNameOrEventName, isFiringToAllBaseClassChannels, isFiringToAllImplementedInterfaceChannels);
 			}
@@ -628,32 +595,6 @@ namespace MVVMSidekick
 
 
 
-		//#if !NETFX_CORE
-
-		//		/// <summary>
-		//		/// Class DataEventArgs.
-		//		/// </summary>
-		//		/// <typeparam name="TData">The type of the t data.</typeparam>
-		//		public class DataEventArgs<TData> : EventArgs
-		//		{
-		//			/// <summary>
-		//			/// Initializes a new instance of the <see cref="DataEventArgs{TData}" /> class.
-		//			/// </summary>
-		//			/// <param name="data">The data.</param>
-		//			public DataEventArgs(TData data)
-		//			{
-
-		//				Data = data;
-		//			}
-
-		//			/// <summary>
-		//			/// Gets or sets the data.
-		//			/// </summary>
-		//			/// <value>The data.</value>
-		//			public TData Data { get; protected set; }
-
-		//		}
-		//#endif
 	}
 
 

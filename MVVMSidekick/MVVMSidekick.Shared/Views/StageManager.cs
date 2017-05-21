@@ -90,7 +90,7 @@ namespace MVVMSidekick.Views
 
                 return _CurrentBindingView;
             }
-            internal set
+             set
             {
                 _CurrentBindingView = value;
             }

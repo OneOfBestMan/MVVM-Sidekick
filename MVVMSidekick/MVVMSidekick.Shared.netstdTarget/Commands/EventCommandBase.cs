@@ -26,12 +26,9 @@ namespace MVVMSidekick.Commands
         /// 执行时的逻辑
         /// </summary>
         /// <param name="args">执行时的事件数据</param>
-        internal protected virtual void OnCommandExecute(EventCommandEventArgs args)
+         public virtual void OnCommandExecute(EventCommandEventArgs args)
         {
-            if (CommandExecute != null)
-            {
-                CommandExecute(this, args);
-            }
+            CommandExecute?.Invoke(this, args);
         }
 
 

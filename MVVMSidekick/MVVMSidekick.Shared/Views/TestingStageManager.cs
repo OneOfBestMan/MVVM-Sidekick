@@ -82,6 +82,10 @@ namespace MVVMSidekick.Views
             {
                 return null;
             }
+            set 
+            {
+              
+            }
         }
 
         public IStage DefaultStage

@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using MVVMSidekick.Views;
 namespace MVVMSidekick.ViewModels
 {
     /// <summary>
@@ -13,6 +13,9 @@ namespace MVVMSidekick.ViewModels
     /// </summary>
     public interface IViewModelLifetime : IDisposeGroup
     {
+
+        IDispatcher Dispatcher { get; }
+
         /// <summary>
         /// Called when [binded to view].
         /// </summary>
@@ -56,19 +59,19 @@ namespace MVVMSidekick.ViewModels
     /// </summary>
     public partial interface IViewModel : IBindable, INotifyPropertyChanged, IViewModelLifetime
     {
-//#if NETFX_CORE  //TODO: Dispatcher For WPF and UWP need a Unify Abstract model
-//            /// <summary>
-//            /// Gets the dispatcher of view.
-//            /// </summary>
-//            Windows.UI.Core.CoreDispatcher Dispatcher { get; }
-//#else
-//        /// <summary>
-//        /// Gets the dispatcher of view.
-//        /// </summary>
-//        /// <value>The dispatcher.</value>
-//        Dispatcher Dispatcher { get; }
+        //#if NETFX_CORE  //TODO: Dispatcher For WPF and UWP need a Unify Abstract model
+        //            /// <summary>
+        //            /// Gets the dispatcher of view.
+        //            /// </summary>
+        //            Windows.UI.Core.CoreDispatcher Dispatcher { get; }
+        //#else
+        //        /// <summary>
+        //        /// Gets the dispatcher of view.
+        //        /// </summary>
+        //        /// <value>The dispatcher.</value>
+        //        Dispatcher Dispatcher { get; }
 
-//#endif
+        //#endif
         /// <summary>
         /// Waits for close.
         /// </summary>
@@ -85,10 +88,7 @@ namespace MVVMSidekick.ViewModels
         /// </summary>
         /// <value><c>true</c> if [have return value]; otherwise, <c>false</c>.</value>
         bool HaveReturnValue { get; }
-        /// <summary>
-        /// Closes the view and dispose.
-        /// </summary>
-        void CloseViewAndDispose();
+
         /// <summary>
         /// Gets or sets the stage manager.
         /// </summary>

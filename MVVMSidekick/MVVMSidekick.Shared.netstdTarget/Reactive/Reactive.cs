@@ -20,10 +20,7 @@ using System.Reactive;
 using System.Reactive.Threading.Tasks;
 using MVVMSidekick.Utilities;
 using MVVMSidekick.Common;
-#if NETFX_CORE
-
-
-#elif WPF
+#if  WPF
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
